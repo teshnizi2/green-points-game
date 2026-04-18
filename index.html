@@ -472,6 +472,13 @@ const CHAPTER_NAMES = {
   projection: "Chapter 8", winners: "Chapter 9", green_city: "Chapter 10"
 };
 
+// Resolve image paths for static hosts, /index.html URLs, and file:// (local open)
+function assetPath(s) {
+  if (!s) return s;
+  const p = s.replace(/^\.\//, "");
+  try { return new URL(p, document.baseURI).href; } catch (e) { return s; }
+}
+
 const SORTING_ITEMS = [
   { id: 1, name: "Apple core",      emoji: "🍎", correct: "compost",  info: "Food scrap → compost" },
   { id: 2, name: "Plastic bottle",  emoji: "🧴", correct: "regular",  info: "Plastic → regular bin" },
@@ -737,7 +744,7 @@ function SceneShell({ image, chapter, title, subtitle, children, footer, imageOv
     <div className="scene-fade max-w-6xl mx-auto px-4 py-6 md:py-10">
       {image && (
         <div className="relative mb-6">
-          <img src={image} alt="" className="hero-img w-full object-cover aspect-[16/9]" />
+          <img src={assetPath(image)} alt="" className="hero-img w-full object-cover aspect-[16/9]" />
           {chapter && (
             <div className="absolute top-4 left-4 bg-white/90 backdrop-blur rounded-full px-3 py-1 font-display font-semibold text-brand-800 text-xs shadow">
               {chapter}
@@ -830,7 +837,7 @@ function TitleScene({ onStart, muted, onToggleMute }) {
 function ProblemScene({ onNext }) {
   return (
     <SceneShell
-      image="./images/scene2_problem.jpg"
+      image="images/scene2_problem.jpg"
       chapter={CHAPTER_NAMES.problem + " — The problem"}
       title="Every bin in town looks like this."
       subtitle="Food. Plastic. Paper. All mixed together."
@@ -853,7 +860,7 @@ function ProblemScene({ onNext }) {
 function FamilyScene({ onNext }) {
   return (
     <SceneShell
-      image="./images/scene1_home.jpg"
+      image="images/scene1_home.jpg"
       chapter={CHAPTER_NAMES.family + " — Meet the family"}
       title="Anna & Lotte."
       subtitle="They live on a quiet street, like anyone you know."
@@ -1086,7 +1093,7 @@ function DepositScene({ onNext, onEarn }) {
 
   return (
     <SceneShell
-      image="./images/scene4_deposit.jpg"
+      image="images/scene4_deposit.jpg"
       chapter={CHAPTER_NAMES.deposit + " — Your first deposit"}
       title="Lotte can't wait to scan the card."
       subtitle="Your city's existing trash card — now earning points."
@@ -1261,7 +1268,7 @@ function MayorScene({ onNext }) {
   };
   return (
     <SceneShell
-      image="./images/scene5_mayor.jpg"
+      image="images/scene5_mayor.jpg"
       chapter={CHAPTER_NAMES.mayor + " — The mayor decides"}
       title="The mayor has a question for you."
     >
@@ -1433,7 +1440,7 @@ function BeforeAfter() {
   return (
     <div className="relative mb-6">
       <img
-        src={after ? "./images/scene6_park.jpg" : "./images/scene2_problem.jpg"}
+        src={after ? assetPath("images/scene6_park.jpg") : assetPath("images/scene2_problem.jpg")}
         alt=""
         className="hero-img w-full object-cover aspect-[16/9] transition-all duration-500"
         key={after ? "a" : "b"}
