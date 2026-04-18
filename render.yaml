@@ -1,0 +1,18 @@
+# Render Blueprint: static site (no build — files at repo root)
+# After pushing to GitHub, open Render → New → Blueprint → connect this repo, or
+# New → Static Site and set Publish directory to "." and Build to "true".
+
+services:
+  - type: web
+    name: green-points-game
+    runtime: static
+    plan: free
+    region: frankfurt
+    branch: main
+    buildCommand: "true"
+    staticPublishPath: .
+    autoDeploy: true
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=3600, must-revalidate
