@@ -2,12 +2,12 @@
 # After pushing to GitHub, open Render → New → Blueprint → connect this repo, or
 # New → Static Site and set Publish directory to "." and Build to "true".
 # Note: do not set `region` for runtime: static — global CDN, region is not allowed.
+# Note: do not set `plan` for static sites — they are not instance-sized; `plan: free` causes a Blueprint error.
 
 services:
   - type: web
     name: green-points-game
     runtime: static
-    plan: free
     branch: main
     buildCommand: "true"
     staticPublishPath: .
