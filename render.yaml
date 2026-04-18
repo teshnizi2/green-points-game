@@ -1,13 +1,13 @@
 # Render Blueprint: static site (no build — files at repo root)
 # After pushing to GitHub, open Render → New → Blueprint → connect this repo, or
 # New → Static Site and set Publish directory to "." and Build to "true".
+# Note: do not set `region` for runtime: static — global CDN, region is not allowed.
 
 services:
   - type: web
     name: green-points-game
     runtime: static
     plan: free
-    region: frankfurt
     branch: main
     buildCommand: "true"
     staticPublishPath: .
