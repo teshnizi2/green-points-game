@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Green Points — scan to play</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #fbf7ef;
+      font-family: "Nunito", system-ui, sans-serif;
+      color: #12402c;
+      padding: 1.5rem;
+    }
+    h1 {
+      font-family: "Fredoka", system-ui, sans-serif;
+      font-size: clamp(1.4rem, 3.5vw, 2.1rem);
+      text-align: center;
+      margin: 0 0 0.35em;
+      line-height: 1.2;
+    }
+    .sub {
+      text-align: center;
+      font-size: 1.05rem;
+      opacity: 0.85;
+      margin: 0 0 1.5rem;
+      max-width: 32rem;
+    }
+    .panel {
+      background: #fff;
+      border-radius: 1.25rem;
+      box-shadow: 0 4px 24px rgba(18, 64, 44, 0.1);
+      padding: clamp(1rem, 2vw, 1.5rem) clamp(1.25rem, 3vw, 2rem);
+      max-width: 42rem;
+      width: 100%;
+    }
+    .field {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 0.75rem;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+    label { font-weight: 600; width: 100%; font-size: 0.95rem; }
+    input {
+      flex: 1 1 14rem;
+      min-width: 0;
+      padding: 0.6rem 0.85rem;
+      border: 2px solid #b2e4c1;
+      border-radius: 0.6rem;
+      font: inherit;
+      color: #12402c;
+    }
+    input:focus {
+      outline: none;
+      border-color: #2f9b62;
+      box-shadow: 0 0 0 3px rgba(47, 155, 98, 0.25);
+    }
+    .btn {
+      padding: 0.6rem 1rem;
+      background: #2f9b62;
+      color: #fff;
+      font-weight: 700;
+      border: none;
+      border-radius: 0.6rem;
+      font: inherit;
+      cursor: pointer;
+    }
+    .btn:hover { background: #1f7d4d; }
+    .btn-secondary {
+      background: transparent;
+      color: #1a6340;
+      border: 2px solid #82d0a0;
+    }
+    .btn-secondary:hover { background: #effaf1; }
+    #qrcode {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 12rem;
+      background: #fff;
+      border-radius: 0.75rem;
+      border: 2px solid #d8f2de;
+    }
+    #qrcode img { max-width: 100%; height: auto; display: block; }
+    .hint {
+      margin-top: 1.25rem;
+      font-size: 0.88rem;
+      opacity: 0.8;
+      text-align: center;
+      line-height: 1.4;
+    }
+    html:fullscreen, html:-webkit-full-screen { background: #fbf7ef; }
+  </style>
+</head>
+<body>
+  <h1>Scan to play — Green Points</h1>
+  <p class="sub">Aim a phone at this code to open the story. Edit the URL if your team uses a custom domain.</p>
+  <div class="panel">
+    <div class="field">
+      <label for="url">Page link (opens in the browser on their phone)</label>
+      <input id="url" type="url" inputmode="url" autocomplete="off" placeholder="https://yoursite.onrender.com/" />
+      <button type="button" class="btn" id="apply">Update QR</button>
+      <button type="button" class="btn btn-secondary" id="use-here" title="Use the address of the site you opened this file from">Use this site’s URL</button>
+    </div>
+    <div id="qrcode" aria-label="QR code for the play link"></div>
+    <p class="hint">
+      <strong>Shared screen:</strong> go fullscreen, mirror this window to the projector, and use a large window so the code scans easily. Press <strong>F</strong> to enter or exit fullscreen. When you open this page on your live game host, the link and QR match that site automatically.
+    </p>
+  </div>
+  <script>
+    (function () {
+      var out = document.getElementById("qrcode");
+      var input = document.getElementById("url");
+      var params = new URLSearchParams(window.location.search);
+      var fromQuery = params.get("u") || params.get("url");
+
+      function homeUrl() {
+        if (window.location.protocol && window.location.protocol !== "file:" && window.location.host) {
+          return window.location.protocol + "//" + window.location.host + "/";
+        }
+        return "";
+      }
+
+      function fullUrl() {
+        var t = (input.value || "").trim();
+        if (!t) return "";
+        try {
+          if (/^https?:\/\//i.test(t)) return t;
+          return "https://" + t.replace(/^\/+/, "");
+        } catch (e) {
+          return t;
+        }
+      }
+
+      function makeQr(text) {
+        if (!text) {
+          out.innerHTML = "<p style=\"padding:1.5rem;text-align:center;color:#666;\">Add a full URL, then <strong>Update QR</strong>.</p>";
+          return;
+        }
+        out.innerHTML = "";
+        var size = Math.min(520, Math.max(300, window.innerWidth - 80));
+        new QRCode(out, {
+          text: text,
+          width: size,
+          height: size,
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      }
+
+      if (fromQuery) {
+        input.value = fromQuery;
+      } else {
+        var h0 = homeUrl();
+        if (h0) input.value = h0;
+      }
+
+      function apply() {
+        var u = fullUrl();
+        if (!u) {
+          out.innerHTML = "<p style=\"padding:1.5rem;text-align:center;color:#c00;\">Enter a full URL, e.g. <code>https://yoursite.onrender.com/</code></p>";
+          return;
+        }
+        makeQr(u);
+      }
+
+      document.getElementById("apply").addEventListener("click", apply);
+      document.getElementById("use-here").addEventListener("click", function () {
+        var h = homeUrl();
+        if (h) {
+          input.value = h;
+          apply();
+        } else {
+          input.focus();
+        }
+      });
+      input.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") apply();
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "f" || e.key === "F") {
+          if (e.target === input) return;
+          e.preventDefault();
+          if (document.fullscreenElement) {
+            document.exitFullscreen();
+          } else {
+            document.documentElement.requestFullscreen();
+          }
+        }
+      });
+      if (fromQuery || homeUrl()) apply();
+    })();
+  </script>
+</body>
+</html>
